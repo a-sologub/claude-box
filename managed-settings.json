@@ -1,0 +1,31 @@
+{
+  "sandbox": {
+    "enabled": true,
+    "failIfUnavailable": true,
+    "allowUnsandboxedCommands": false,
+    "enableWeakerNestedSandbox": true,
+    "filesystem": {
+      "allowWrite": ["~/.cache", "~/.config", "~/.local", "/tmp"]
+    },
+    "excludedCommands": ["run-tests", "run-tests *"],
+    "network": {
+      "strictAllowlist": true,
+      "allowManagedDomainsOnly": true,
+      "allowedDomains": [
+        "host.containers.internal",
+        "*.github.com", "github.com",
+        "codeload.github.com", "objects.githubusercontent.com",
+        "raw.githubusercontent.com",
+        "registry.npmjs.org", "*.npmjs.org",
+        "repo.packagist.org", "*.packagist.org",
+        "pypi.org", "files.pythonhosted.org",
+        "laravel.com", "filamentphp.com"
+      ]
+    }
+  },
+  "disableAllHooks": true,
+  "allowedMcpServers": [],
+  "permissions": {
+    "deny": ["WebFetch", "WebSearch"]
+  }
+}

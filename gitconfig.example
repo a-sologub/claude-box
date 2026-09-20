@@ -1,0 +1,22 @@
+# Copy to gitconfig, fill in, never commit. Mounted read-only into the
+# container as GIT_CONFIG_GLOBAL, so the image itself carries no identity.
+
+[user]
+	name = Your Name
+	email = you@example.com
+
+[init]
+	defaultBranch = main
+
+# gh reads GH_TOKEN from the environment and hands it to git over HTTPS.
+[credential "https://github.com"]
+	helper = !gh auth git-credential
+
+# Rewrite SSH remotes to HTTPS. SSH host aliases from your host ~/.ssh/config
+# do not exist inside the container, so list each one you use. Multi-valued:
+# every rewrite needs its own line.
+[url "https://github.com/"]
+	insteadOf = git@github.com:
+	insteadOf = ssh://git@github.com/
+#	insteadOf = git@github.com-work:
+#	insteadOf = ssh://git@github.com-work/
