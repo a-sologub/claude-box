@@ -40,6 +40,7 @@ _claude_box_common_args() {
     -e GIT_CONFIG_GLOBAL=/home/claude/.gitconfig \
     -e CLAUDE_CONFIG_DIR=/home/claude/.claude \
     -e "DB_HOST=$CLAUDE_BOX_DB_HOST" \
+    -e TERM -e COLORTERM -e TERM_PROGRAM -e TERM_PROGRAM_VERSION -e TMUX \
     --env-file "$CLAUDE_BOX_DIR/gh-token.env" \
     --userns=keep-id \
     --security-opt no-new-privileges \

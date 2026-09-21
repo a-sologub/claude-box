@@ -22,6 +22,7 @@ RUN dnf install -y \
     findutils diffutils procps-ng which less tree \
     curl wget unzip tar rsync \
     openssh-clients ca-certificates \
+    ncurses-term \
     ImageMagick ShellCheck \
     && dnf clean all
 
