@@ -39,7 +39,7 @@ RUN printf 'memory_limit = 1G\n' > /etc/php.d/99-claude-box.ini
 
 # The only command allowed to run outside the sandbox. Lives on the read-only
 # rootfs so nothing inside can change what it does.
-COPY --chmod=755 run-tests /usr/local/bin/run-tests
+COPY --chmod=755 with-db run-tests /usr/local/bin/
 
 # Match the host user so files in the mounted workspace keep their owner.
 ARG UID=1000

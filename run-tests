@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
-# Runs the project's test suite from the current project directory.
-# This is the only command excluded from the Claude Code sandbox, so it can
-# reach a database on the host over raw TCP. Keep it dumb.
+# Runs the project's test suite from the current project directory, with the
+# host database bridged onto 127.0.0.1. See with-db.
 set -euo pipefail
-export DB_HOST="${DB_HOST:-host.containers.internal}"
+
 if [[ -x vendor/bin/pest ]]; then
-  exec vendor/bin/pest "$@"
+  exec with-db vendor/bin/pest "$@"
 elif [[ -x vendor/bin/phpunit ]]; then
-  exec vendor/bin/phpunit "$@"
+  exec with-db vendor/bin/phpunit "$@"
 else
   echo "run-tests: no vendor/bin/pest or vendor/bin/phpunit here" >&2
   exit 1

@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Runs a command with this project's host database reachable on 127.0.0.1.
+#
+# The sandbox unshares the network: nothing has a direct route out. The only
+# ways through are the HTTP proxy and a SOCKS5 proxy, and SOCKS5 carries
+# arbitrary TCP to any host on the allowlist. Listen on the port the project's
+# .env already names and forward it through, so .env needs no changes.
+# Keep it dumb: every line here still runs sandboxed.
+set -euo pipefail
+
+target_host="${DB_TARGET_HOST:-host.containers.internal}"
+
+# The port is per project: each sail stack forwards its own (3306, 13306, ...).
+port="${DB_PORT:-}"
+if [[ -z "$port" && -f .env ]]; then
+  port=$(sed -nE 's/^[[:space:]]*DB_PORT[[:space:]]*=[[:space:]]*"?'"'"'?([0-9]+).*/\1/p' .env | tail -1)
+fi
+port="${port:-3306}"
+
+proxy="${ALL_PROXY:-${HTTP_PROXY:-}}"
+if [[ "$proxy" == *@* ]]; then
+  creds=${proxy#*://}; creds=${creds%%@*}
+  socks="socksuser=${creds%%:*},sockspass=${creds#*:}"
+
+  if [[ "$(timeout 5 socat -u "SOCKS5-CONNECT:localhost:1080:$target_host:$port,$socks" - 2>/dev/null \
+           | head -c 1 | wc -c)" -eq 0 ]]; then
+    echo "with-db: nothing answering at $target_host:$port - is the project's database container running?" >&2
+  fi
+
+  socat TCP-LISTEN:"$port",bind=127.0.0.1,reuseaddr,fork \
+    "SOCKS5-CONNECT:localhost:1080:$target_host:$port,$socks" >/dev/null 2>&1 &
+  trap 'kill $! 2>/dev/null || true' EXIT
+  for _ in $(seq 100); do
+    (exec 3<>"/dev/tcp/127.0.0.1/$port") 2>/dev/null && { exec 3<&-; break; }
+    read -rt 0.05 -u 9 _ 2>/dev/null || true
+  done 9< /dev/zero
+fi
+
+# claude-box exports DB_HOST for the whole session and a real variable beats
+# .env, so point it back at the local end of the bridge.
+export DB_HOST=127.0.0.1 DB_PORT="$port"
+exec "$@"

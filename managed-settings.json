@@ -7,7 +7,6 @@
     "filesystem": {
       "allowWrite": ["~/.cache", "~/.config", "~/.local", "/tmp"]
     },
-    "excludedCommands": ["run-tests", "run-tests *"],
     "network": {
       "strictAllowlist": true,
       "allowManagedDomainsOnly": true,
